@@ -14,6 +14,7 @@ class ViewController: UIViewController {
     var signupMode = true
     var activityIndicator = UIActivityIndicatorView()
     var isLoggin = true
+    var userCount = 0
 
     @IBOutlet weak var header: UILabel!
     @IBOutlet weak var firstName: UITextField!
@@ -52,7 +53,6 @@ class ViewController: UIViewController {
         
         let context = appDelegate.persistentContainer.viewContext
         
-        
         if signupMode {
             
             // add the user
@@ -65,6 +65,7 @@ class ViewController: UIViewController {
                 UIApplication.shared.endIgnoringInteractionEvents()
                 
             } else {
+                
                 
                 let newUser = NSEntityDescription.insertNewObject(forEntityName: "Users", into: context)
                 
@@ -106,9 +107,10 @@ class ViewController: UIViewController {
         } else {
             
             // login mode
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Users")
+            
             
             do {
-                let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Users")
                 
                 let results = try context.fetch(request)
                 
@@ -129,21 +131,42 @@ class ViewController: UIViewController {
                             } else {
                                 
                                 // username is correct but password doesn't match
-                                self.createAlert(title: "Log In Unsuccessful", message: "Username and Password don't match")
+                                //self.createAlert(title: "Log In Unsuccessful", message: "Username and Password don't match")
+                                userCount += 1
+                                //self.activityIndicator.stopAnimating()
+                                //UIApplication.shared.endIgnoringInteractionEvents()
+                                if userCount == results.count {
+                                    
+                                    self.createAlert(title: "Log In Unsucessful", message: "Username and Password don't match")
+                                    
+                                    self.activityIndicator.stopAnimating()
+                                    UIApplication.shared.endIgnoringInteractionEvents()
+                                }
+                            }
+                        } else {
+                            
+                            userCount += 1
+                            // username doesn't exist
+                            print("username doesn't exist")
+                            //self.createAlert(title: "Log In Unsucessful", message: "Username doesn't exist")
+                            
+                            //self.activityIndicator.stopAnimating()
+                            //UIApplication.shared.endIgnoringInteractionEvents()
+                            
+                            if userCount == results.count {
+                                
+                                self.createAlert(title: "Log In Unsucessful", message: "Username doesn't exist")
                                 
                                 self.activityIndicator.stopAnimating()
                                 UIApplication.shared.endIgnoringInteractionEvents()
                             }
-                        } else {
+                            print("got here")
                             
-                            // username doesn't exist
-                            self.createAlert(title: "Log In Unsucessful", message: "Username doesn't exist")
-                            
-                            self.activityIndicator.stopAnimating()
-                            UIApplication.shared.endIgnoringInteractionEvents()
                             
                         }
                     }
+                    
+
                 }
                 
             } catch {
